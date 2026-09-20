@@ -22,7 +22,7 @@ Pramana must produce an auditable case assessment and a measured experiment from
 
 Consumer data remains under the control of the consuming system. Pramana processes explicitly supplied inputs without importing consumer application code or bundling source datasets. Provider-specific adapters map external records into the common contract and must not change core verdict semantics.
 
-Source records, credentials, website captures, evidence bundles, agent payloads and outputs, and experiment artifacts must be stored outside the repository in consumer-controlled storage. Repository examples and test fixtures must be synthetic. Documentation, logs committed to Git, issues, and pull requests must not contain consumer data or identifying source references. Aggregate reports may be published only after review for disclosure risk.
+Source records, credentials, website captures, evidence bundles, agent payloads and outputs, and experiment artifacts must be stored in consumer-controlled, Git-ignored runtime storage (default: `.local/` inside the checkout). Repository examples and test fixtures must be synthetic. Documentation, logs committed to Git, issues, and pull requests must not contain consumer data or identifying source references. Aggregate reports may be published only after review for disclosure risk.
 
 Any agent execution must use only the fields required for the case and a processing environment authorized by the consumer. Agent availability does not authorize disclosure of consumer data.
 

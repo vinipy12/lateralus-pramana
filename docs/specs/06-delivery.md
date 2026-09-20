@@ -6,7 +6,7 @@ Status: proposed implementation sequence. Implementation has not started.
 
 Pramana verifies company–website relationships independently of consumer applications and data providers. Integrations map authorized external records into the provider-agnostic input contract. The core does not depend on a consumer database, application codebase, or existing liveness service.
 
-The repository contains reusable source code, specifications, and synthetic fixtures. All consumer records and derived runtime artifacts reside in consumer-controlled storage outside the checkout. No implementation step may introduce consumer data into repository history or development collaboration tools.
+Tracked repository content contains reusable source code, specifications, and synthetic fixtures. All consumer records and derived runtime artifacts reside in consumer-controlled, Git-ignored runtime storage (default: `.local/` inside the checkout). No implementation step may introduce consumer data into repository history or development collaboration tools.
 
 Model routing, data disclosure, cost budgets, adjudication policy, and production enforcement require explicit configuration before execution. Agent-derived reference labels remain provisional and do not establish production release criteria.
 
@@ -29,17 +29,17 @@ Python is the proposed implementation language; library choices and versions are
 | `rules` | Deterministic identity assessment, later phase | No inference or network access |
 | `reporting` | Reproducible Markdown/JSON reports | Derived from immutable artifacts and events |
 
-Proposed local storage: a private artifact directory for content-addressed blobs and JSON/JSONL records, with a small transactional index for scheduling and resume. Storage technology is an implementation choice; immutable provenance and atomic receipt semantics are requirements. A filesystem alone does not provide transactional multi-worker scheduling.
+V1 storage uses SQLite for the cache index, transactional job state, receipts, and append-only telemetry events, with content-addressed files for large artifacts. Everything resides in Git-ignored `.local/` by default, partitioned by consumer. JSONL and reports are derived exports. See [storage and idempotency](07-storage.md) for keys, leases, crash recovery, and refresh semantics.
 
 ## Implementation order and likely files
 
 1. **Contracts and synthetic fixtures**: `src/pramana/contracts/`, `tests/fixtures/`, `tests/test_contracts.py`. Define canonical hashes, states, reason codes, and privacy-safe examples.
-2. **Deterministic collection and extraction**: `src/pramana/collection/`, `src/pramana/extraction/`, `tests/test_collection.py`, `tests/test_extraction.py`. Implement budgets and destination controls before live website access.
+2. **Deterministic collection and extraction**: `src/pramana/collection/`, `src/pramana/extraction/`, `tests/test_collection.py`, `tests/test_extraction.py`. Implement versioned V1 budgets and destination controls before live website access; include logo candidate metadata without image downloads.
 3. **Artifacts and telemetry**: `src/pramana/artifacts/`, `src/pramana/measurement/`, `tests/test_resume.py`, `tests/test_measurement.py`. Integrate from the first collector slice, not after agent runs.
 4. **Runtime capability spike**: `src/pramana/agents/`, `docs/runtime-capabilities.md`. Demonstrate fresh contexts, receipts, model identity/usage availability, capacity, cancellation, and operator-assisted limitations using synthetic evidence. Do not assume tools can be invoked unattended from a standalone script.
 5. **Three labelers and judge**: `src/pramana/orchestration/`, `src/pramana/validation/`, versioned prompt assets and their tests. Review execution-ready prompts for the selected runtime before any labeling run.
 6. **Sampling and reporting**: `src/pramana/evaluation/`, `src/pramana/reporting/`, `tests/test_reporting.py`. Add provider-neutral import, grouped splits, metric reconciliation, and pricing assumptions.
-7. **Pilot**: run a small synthetic smoke experiment, then the authorized 100-case sample. Store outputs outside the repository; publish aggregate findings in versioned documentation only after disclosure review.
+7. **Pilot**: run a small synthetic smoke experiment, then the authorized 100-case sample. Store outputs in the Git-ignored runtime directory; publish aggregate findings in versioned documentation only after disclosure review.
 8. **Deterministic verifier**: `src/pramana/rules/`, `tests/test_rules.py`. Develop on frozen development evidence and evaluate separately on holdout. No production enforcement in this phase.
 
 A minimal CLI can expose import, collect, label, judge, resume, and report operations, but exact command syntax is deferred. Packaging, dependencies, and CI configuration will be proposed during implementation, not silently selected by this document.
@@ -49,7 +49,7 @@ A minimal CLI can expose import, collect, label, judge, resume, and report opera
 - Fake HTTP/DNS fixtures: redirect loop, private-address redirect, DNS rebinding, oversized/compressed response, slow stream, Retry-After, malformed HTML, and cross-origin credentials.
 - Evidence snapshots: same input bytes/configuration yield identical extraction; multilingual names, IDNs, relative links, long pages, and multiple organizations retain auditable evidence.
 - Agent contract fixtures: unsupported citations, invalid output, prompt injection text, missing labeler, unanimous incorrect labels overridden by the judge, and supplemental evidence rounds.
-- Resume fault injection: process exit around artifact/receipt writes, duplicate completion, failed attempts with incurred usage, and cancellation preserve accurate lineage and cost.
+- Resume fault injection: process exit around artifact/receipt writes, duplicate completion, stale leases, cache invalidation, failed attempts with incurred usage, and cancellation preserve accurate lineage and cost.
 - Cost fixtures: cached tokens included in input, reasoning included in output, partial/missing usage, shared collection, retries, parallel duration, and unknown orchestration costs.
 - Dataset fixtures: corporate-family overlap and synthetic pairings cannot leak across development/holdout; incomplete cases remain in end-to-end reporting.
 

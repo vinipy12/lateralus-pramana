@@ -10,9 +10,9 @@ Status: proposed v1 contract. Related: [measurement](04-measurement.md), [delive
 
 Cases are assessed individually. Website collection can be shared across cases, but labels cannot be shared merely because domains match. Stable IDs must not disclose company names or reference-label provenance to agents unintentionally.
 
-## Proposed collection limits
+## V1 collection limits
 
-All limits live in the experiment manifest; they are starting values to test, not hidden constants.
+These are V1 experiment defaults, not permanent product constraints. All limits live in the versioned experiment manifest. If coverage or evidence quality is insufficient, revise page discovery, content limits, or collection capabilities in a new configuration and measure the quality/cost tradeoff. Do not silently expand an active run or change frozen benchmark evidence; create new bundles and evaluation versions.
 
 | Limit | Proposed default |
 |---|---|
@@ -39,11 +39,21 @@ Record fetch failure independently from identity assessment. DNS failure, 403, 4
 
 ## Extraction
 
-For supported HTML, deterministically extract title, description, canonical URL, headings, bounded main/body text, organization structured data, footer identity/copyright text, phone/address candidates, social profile links, About/Contact links, and parking indicators. Retain visible evidence of conflicts rather than collapsing to one identity.
+For supported HTML, deterministically extract title, description, canonical URL, headings, bounded main/body text, organization structured data, footer identity/copyright text, phone/address candidates, social profile links, About/Contact links, parking indicators, and logo candidate metadata. Retain visible evidence of conflicts rather than collapsing to one identity.
 
 Each retained item has `element_id`, page ID, type, original text/value, normalized value when applicable, document location (selector or structured-data path), and text offsets where applicable. Count examined, retained, dropped, and truncated elements by type; counts describe the extractor's rules, not an abstract claim about every DOM element.
 
 Exclude scripts/styles from visible text. Structured data is parsed as data, never executed. Version normalization, language-specific patterns, parser, public-suffix data, and parking-indicator lists. Parking claims need evidence; a bare keyword is insufficient.
+
+## Logo candidates: V1 metadata, V2 assets
+
+V1 extracts candidate URLs from organization structured-data `logo` fields, header images identified by deterministic logo patterns, and icon link metadata. Keep these source types distinct: a favicon or generic social-preview image is not automatically a company logo. Generic social-preview images are excluded from logo candidates unless explicitly corroborated by logo metadata.
+
+Record candidate ID, page/element reference, source type, original and resolved URL, alt text, and declared width/height/type when available. Resolve relative URLs against the effective document base, retain conflicts, deduplicate exact resolved URLs, and use stable source/document ordering. Apply URL validation without fetching the image; cross-origin CDN references can be recorded as unverified candidates. Bound candidates to 10 per page and 20 per bundle in the V1 manifest, recording truncation.
+
+V1 does not download images, inspect pixels, execute/render SVG, rank visual quality, or select a verified logo. A candidate's presence is not company identity evidence or proof of permission to reuse it. Labelers may see the metadata as context but cannot count logo presence alone as a match. Record candidate counts and extraction time.
+
+V2 may add bounded image acquisition, MIME/dimension validation, safe rendering, deduplication, selection, and platform display suitability. This addresses presentation value separately from identity verification and requires its own measured fetch/storage budget.
 
 ## Artifact contract
 
@@ -60,4 +70,4 @@ Cache by normalized fetch target plus collection-policy/version key. Do not merg
 
 A pilot may reuse a snapshot for 24 hours; pinned benchmark snapshots remain immutable regardless of cache age. Expired cache entries trigger new bundles, never mutation. Shared fetch cost belongs to one collection event and is allocated across case references only for reporting.
 
-Store artifacts outside the repository in a consumer-controlled private directory; a Git-ignored directory inside the checkout is not an adequate data boundary. Proposed raw-body retention is 30 days for exploratory runs; benchmark-selected evidence is retained until the experiment is retired. Record purges and any lost replay capability. Apply access restrictions to raw content and source records; redact secrets from URLs/logs and retain only relevant business identifiers in agent inputs. Treat source references, telemetry containing URLs, and agent outputs as consumer data too. Do not transfer artifacts between consumers or use a shared cross-consumer cache. Keep any runtime index in the same consumer-controlled storage boundary.
+Store artifacts in the Git-ignored `.local/` directory inside the checkout by default, with an optional external runtime root. Git exclusion prevents accidental tracking; filesystem permissions and consumer separation provide the access boundary. See [local storage and idempotency](07-storage.md) for SQLite, artifact layout, and resume semantics. Proposed raw-body retention is 30 days for exploratory runs; benchmark-selected evidence is retained until the experiment is retired. Record purges and any lost replay capability. Apply access restrictions to raw content and source records; redact secrets from URLs/logs and retain only relevant business identifiers in agent inputs. Treat source references, telemetry containing URLs, and agent outputs as consumer data too. Do not transfer artifacts between consumers or use a shared cross-consumer cache. Keep any runtime index in the same consumer-controlled storage boundary.

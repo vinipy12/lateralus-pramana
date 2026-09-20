@@ -1,4 +1,5 @@
 # Local credentials and private experiment artifacts
+/.local/
 .env
 .env.*
 !.env.example

@@ -6,7 +6,7 @@ Status: proposed telemetry contract. All metrics have units, scope, provenance, 
 
 Every event records `schema_version`, event ID, experiment ID, case ID when applicable, collection target ID when applicable, stage, logical work ID, attempt ID, parent event ID, UTC timestamps, monotonic duration in milliseconds, outcome, configuration hash, and software revision. Shared collection events need not have a single case ID: the case-to-bundle table preserves the relationship.
 
-Use UTC for correlation and monotonic clocks for durations. Record queue time separately from service time. An append-only event stream is the audit source; aggregates are derived and regenerateable.
+Use UTC for correlation and monotonic clocks for durations. Record queue time separately from service time. An append-only SQLite event table is the audit source; JSONL exports and aggregates are derived and regenerable. Completion state and its terminal event are committed together; see [storage](07-storage.md).
 
 ## Required measurements
 
@@ -14,7 +14,7 @@ Use UTC for correlation and monotonic clocks for durations. Record queue time se
 |---|---|
 | Experiment | Start/end, elapsed wall time, requested/validated/completed/incomplete cases, targets, concurrency configuration, peak active workers, cancellation |
 | Fetch attempt | Queue/service duration, DNS/connect/TLS/first-byte timings when exposed, status, hop count and ordered chain, network bytes observed, decoded body bytes, retry/backoff, cache disposition, failure category |
-| Extraction | Duration, page/media type, input bytes, examined/retained/dropped element counts by type, retained characters, truncation, parser failures |
+| Extraction | Duration, page/media type, input bytes, examined/retained/dropped element counts by type, retained characters, truncation, parser failures, logo candidates by source type |
 | Agent invocation | Role, model/provider/version when exposed, runtime, invocation/attempt IDs, round, start/end/duration, rubric/prompt hash, evidence hash, outcome, repair reason, usage |
 | Resources | Process CPU seconds, peak RSS bytes, stored artifact bytes, sampling method and scope |
 | Assessment | Verdict distribution, valid-label count, agreement pattern, judge override, additional-evidence request, uncertain/incomplete rate |
