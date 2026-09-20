@@ -6,7 +6,7 @@ Status: workflow specification, not execution-ready prompts or a production qual
 
 The pilot uses an operator-assisted agent runtime adapter when available. A subscription-backed interactive session is a possible execution environment, not a promised unattended API, guaranteed capacity, or source of complete token telemetry. Preflight must report spawning capacity, isolation, model identity visibility, usage visibility, and resumability. Missing capabilities are surfaced before the run.
 
-Exactly three labeler roles assess each case. They can run concurrently or sequentially in fresh contexts; independence does not require simultaneous execution. A judge runs after the three valid labels exist. With four total runtime slots including an orchestrator, the three labelers occupy the remaining slots and the judge runs after they finish. The number of roles is independent of the number of available slots.
+Initial collection covers every domain in the frozen dataset before labeling starts. After the durable collection barrier, three labeler streams run concurrently, each covering every eligible row independently. They may process different rows at the same time. As soon as a row has three valid labels from distinct roles for the same evidence round, it becomes eligible for asynchronous judging while labeling continues on other rows. Judges may process multiple ready rows concurrently. There is no dataset-wide labeling barrier before judging and no fixed four-slot runtime assumption. See [asynchronous scheduling and scale](08-scheduling.md).
 
 Agents receive evidence as untrusted data and have no direct network, repository mutation, credentials, or production tools. New collection is a structured request to the orchestrator. A hostile page instructing an agent to change its verdict or reveal secrets must be ignored.
 
@@ -55,7 +55,9 @@ If additional evidence is approved by the existing collection policy, freeze a n
 
 ## Durable workflow
 
-`validated -> collecting -> evidence_ready -> labeling -> judging -> completed`
+Dataset: `manifest_frozen -> collecting_all_targets -> collection_barrier_released -> labeling_and_judging -> completed_or_partial`.
+
+Row: `validated -> collection_outcome -> awaiting_dataset_barrier -> labeling -> judge_ready -> judging -> completed`. The three role states are tracked independently; the judge-ready transition requires all three matching committed labels. Global termination requires terminal row states, drained queues, and no unresolved in-flight or supplemental work.
 
 Additional transitions: collection/labeling/judging may fail retryably or terminally; judging may request one supplemental collection round; stages may be cancelled. A partial report retains all case states, including failures.
 

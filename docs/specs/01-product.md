@@ -15,7 +15,7 @@ Pramana must produce an auditable case assessment and a measured experiment from
 - Three independent labeler agents and a separate judge agent.
 - The judge reviews every case, including unanimous labels.
 - Record operational metadata and per-invocation token usage where exposed.
-- Use a small agent-assisted benchmark to develop a deterministic production verifier; no requirement to send millions of records to models.
+- Validate with a small initial dataset while designing the complete collection, three-labeler, and judge pipeline for 4M+ rows. A deterministic-only verifier remains a separate production scenario.
 - Minimize owner labeling work. Preserve unresolved cases rather than forcing decisions.
 
 ## Consumer data isolation
@@ -36,9 +36,9 @@ Source associations are provisional positives. Neither source provenance nor agr
 
 1. Operator imports a provider-neutral case manifest and selects a versioned experiment configuration.
 2. Pramana validates cases, provenance, limits, artifact location, and runtime capabilities.
-3. The collector deduplicates website work and captures immutable evidence.
-4. Three blind labelers assess each case using the same evidence version.
-5. A judge examines all labels and their cited evidence; bounded additional collection may create a new labeling round.
+3. The collector deduplicates website work, captures immutable evidence for the full dataset, and records every terminal collection outcome before releasing the labeling phase.
+4. Three blind labeler streams run concurrently across all rows, independently scheduling cases and using the same evidence version for each case.
+5. Async judge workers assess each row as soon as all three labels are valid, overlapping with labeling of other rows; bounded additional collection may create a new row-level labeling round.
 6. The operator receives traceable verdicts, disagreement analysis, resource measurements, missing-usage counts, and explicit production cost scenarios.
 7. Subsequent deterministic rule versions are evaluated on frozen, separated development and holdout cases.
 
@@ -72,4 +72,8 @@ CLI and Markdown/JSON reports are the proposed v1 interface. A mobile/desktop UI
 
 ## Out of scope
 
-Production mutation, deletion, quarantine, automatic merge of company records, large-scale production collection, paid model configuration, headless browser rendering, authentication to websites, CAPTCHA bypass, hosted UI, and execution-ready agent prompts are outside the initial implementation scope.
+Production mutation, deletion, quarantine, automatic merge of company records, paid model configuration, headless browser rendering, authentication to websites, CAPTCHA bypass, hosted UI, and execution-ready agent prompts are outside the initial implementation scope.
+
+## Scale requirement
+
+The initial dataset is a pilot, not the architectural capacity limit. Success targets the full pipeline at 4M+ rows using bounded asynchronous work, durable queues, independent labeler progress, and per-row judge readiness. Actual bulk execution requires an explicit run manifest and resource budget. See [scheduling and capacity acceptance](08-scheduling.md).

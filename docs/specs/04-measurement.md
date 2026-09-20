@@ -47,11 +47,12 @@ Use a provider-specific mapping otherwise. Unknown token components produce unkn
 
 Infrastructure assumptions include compute-hour rates, storage GB-month rates, egress rates if relevant, artifact retention, and worker utilization. Local-machine resource measurements do not directly equal a cloud invoice. Tag estimates with all rates, their units, and their provenance.
 
-## Three separate production scenarios
+## Production scenarios
 
 1. **Experiment**: collection + all labeler/judge/repair/supplemental executions + orchestration + storage.
 2. **Deterministic production**: collection + extraction + rules + storage + retries; model cost is zero by design.
-3. **Hybrid production**: deterministic production + explicitly selected agent review, including all three labelers and judge if that remains the review policy.
+3. **Full agent pipeline**: complete collection followed by three labels and one adjudication per case; include retries, supplemental rounds, orchestration, and storage. At 4M rows the initial pass is 12M logical labels plus 4M logical judge assessments.
+4. **Hybrid production**: deterministic production + explicitly selected agent review, including all three labelers and judge if that remains the review policy.
 
 Let `D` be unique collection targets, `C` company–domain cases, `h` valid collection-cache hit fraction, and `q` fraction of cases selected for agent review:
 
@@ -74,3 +75,7 @@ Produce machine-readable events and summaries plus a Markdown report with:
 - Three-way agreement, judge override, uncertain/incomplete rates, provenance mix, usage coverage, and reference-label limitations.
 - Separate spend already incurred, API-equivalent cost, and modeled production costs.
 - Reconciliation of events to attempts, attempts to cases, and all published totals.
+
+## Scheduling and scale telemetry
+
+Record collection-barrier time and totals, per-role throughput and remaining rows, judge-ready timestamp, ready-to-dispatch latency, label/judge overlap, active workers, queue depth and oldest-job age, backpressure duration, database contention, and recovery time. Distinguish startup phase duration from steady-state throughput. Estimate full-pipeline wall time as collection-phase duration plus measured overlapped labeling/judging duration; do not sum all agent service times. Include evidence age at labeling after the full-dataset collection barrier. Report the slowest role and judge capacity as potential bottlenecks, with resource assumptions for the 4M+ target.

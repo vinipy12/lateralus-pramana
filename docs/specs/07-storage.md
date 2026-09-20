@@ -21,7 +21,7 @@ Each consumer has a separate database and artifact namespace. Do not share cache
 
 ## SQLite responsibilities
 
-SQLite indexes immutable artifact references, cache entries, experiments, cases, logical jobs, attempts, leases, accepted results, and usage events. Large response bodies and evidence payloads remain content-addressed files. Schema versions and explicit migrations are recorded.
+SQLite indexes immutable artifact references, cache entries, experiments, cases, logical jobs, attempts, leases, accepted results, and usage events. It is the single-host pilot backend behind replaceable transactional storage interfaces; the full pipeline targets 4M+ rows as specified in [scheduling](08-scheduling.md). Large response bodies and evidence payloads remain content-addressed files. Schema versions and explicit migrations are recorded.
 
 Use WAL on local disk, short transactions, foreign keys, bounded busy waits, and a serialized writer queue. Do not hold database transactions while fetching websites or invoking agents. WAL allows concurrent readers but still has one writer and requires processes on the same host; network filesystems are unsupported for this configuration. See [SQLite WAL documentation](https://www.sqlite.org/wal.html).
 
@@ -59,7 +59,8 @@ Extraction may be recomputed from retained bodies without network calls when onl
 3. Persist attempt intent before starting external work; record external invocation IDs as soon as available.
 4. Write artifacts to temporary files, flush, validate hashes, then atomically publish on the same filesystem. Commit the accepted result, artifact references, completion state, and terminal telemetry event in one SQLite transaction after artifacts are durable.
 5. Export JSONL/report views from committed events. They are derived exports; the append-only SQLite event table is the audit source, avoiding an unsafe database-plus-JSONL dual write.
-6. Recovery validates references and identifies unreferenced blobs. Missing/corrupt artifacts invalidate reuse; never silently report a complete job with missing evidence. Garbage collection retains artifacts referenced by pinned runs.
+6. Accepting a label also updates per-role row readiness and inserts a unique judge-ready job in the same transaction when all three matching roles are present. Workers consume the durable queue directly; external queue adapters must use a transactional outbox with idempotent delivery.
+7. Recovery validates references and identifies unreferenced blobs. Missing/corrupt artifacts invalidate reuse; never silently report a complete job with missing evidence. Garbage collection retains artifacts referenced by pinned runs.
 
 Leases need renewal for long jobs. Before reclaiming an agent job, reconcile its external invocation when the runtime permits. If execution may have occurred but cannot be reconciled, record `execution_unknown`; do not automatically redispatch that job. An explicitly selected retry creates a new attempt and preserves unknown prior usage. Network requests can still be repeated after crashes; every known attempt remains accountable.
 
@@ -77,3 +78,7 @@ These are durable-state and resume guarantees, not a promise of exactly-once ext
 ## Verification
 
 Use fault injection around job claim, artifact publication, completion commit, and event export. Exercise concurrent duplicate claims, stale lease completion, expired cache versus pinned resume, model/policy changes, corrupt blobs, interrupted agent calls, and repeat report generation. Assert both result uniqueness and cost conservation. Track cache hit/miss reasons, reused job counts, lease contention, database wait time, WAL size, and reconciliation outcomes.
+
+## Scale-aware access
+
+Index role/state/eligibility and lease-expiry lookups, paginate with stable cursors, and aggregate incrementally. Store immutable dataset membership and collection-barrier receipts. Avoid full-table scans per completion, per-row polling, and loading millions of jobs into memory. The scheduling specification defines overlapping label/judge workers and the capacity tests required before selecting a multi-host backend.

@@ -21,7 +21,7 @@ Python is the proposed implementation language; library choices and versions are
 | `collection` | Bounded fetch/redirect policy | Receives URLs and policy; emits fetch artifacts |
 | `extraction` | Deterministic evidence extraction | Stored bytes to versioned evidence |
 | `artifacts` | Immutable blobs, manifests, receipts | No verdict policy |
-| `orchestration` | Scheduling, retries, resume, rounds | Calls collector and runtime adapters |
+| `orchestration` | Collection barrier, async role queues, per-row judge readiness, retries and resume | Calls collector and runtime adapters |
 | `agents` | Runtime capability probe and dispatch | No dependence on a particular subscription/API |
 | `validation` | Schema, citation, lineage checks | Distinguishes invalid execution from uncertainty |
 | `measurement` | Append-only telemetry and normalization | Preserves usage provenance and missingness |
@@ -36,11 +36,12 @@ V1 storage uses SQLite for the cache index, transactional job state, receipts, a
 1. **Contracts and synthetic fixtures**: `src/pramana/contracts/`, `tests/fixtures/`, `tests/test_contracts.py`. Define canonical hashes, states, reason codes, and privacy-safe examples.
 2. **Deterministic collection and extraction**: `src/pramana/collection/`, `src/pramana/extraction/`, `tests/test_collection.py`, `tests/test_extraction.py`. Implement versioned V1 budgets and destination controls before live website access; include logo candidate metadata without image downloads.
 3. **Artifacts and telemetry**: `src/pramana/artifacts/`, `src/pramana/measurement/`, `tests/test_resume.py`, `tests/test_measurement.py`. Integrate from the first collector slice, not after agent runs.
-4. **Runtime capability spike**: `src/pramana/agents/`, `docs/runtime-capabilities.md`. Demonstrate fresh contexts, receipts, model identity/usage availability, capacity, cancellation, and operator-assisted limitations using synthetic evidence. Do not assume tools can be invoked unattended from a standalone script.
-5. **Three labelers and judge**: `src/pramana/orchestration/`, `src/pramana/validation/`, versioned prompt assets and their tests. Review execution-ready prompts for the selected runtime before any labeling run.
+4. **Runtime capability spike**: `src/pramana/agents/`, `docs/runtime-capabilities.md`. Demonstrate fresh contexts, three concurrent labeler streams with overlapping judge work, receipts, model identity/usage availability, cancellation, and runtime capacity using synthetic evidence. Do not assume tools can be invoked unattended from a standalone script.
+5. **Three labelers and judge**: `src/pramana/orchestration/`, `src/pramana/validation/`, versioned prompt assets and their tests. Implement the [async scheduling contract](08-scheduling.md), including transactional judge readiness and backpressure. Review execution-ready prompts for the selected runtime before any labeling run.
 6. **Sampling and reporting**: `src/pramana/evaluation/`, `src/pramana/reporting/`, `tests/test_reporting.py`. Add provider-neutral import, grouped splits, metric reconciliation, and pricing assumptions.
 7. **Pilot**: run a small synthetic smoke experiment, then the authorized 100-case sample. Store outputs in the Git-ignored runtime directory; publish aggregate findings in versioned documentation only after disclosure review.
-8. **Deterministic verifier**: `src/pramana/rules/`, `tests/test_rules.py`. Develop on frozen development evidence and evaluate separately on holdout. No production enforcement in this phase.
+8. **Scale validation**: synthetic 4M+ case scheduling/recovery tests with fake adapters; live-pilot throughput and cost extrapolation. Demonstrate bounded memory and storage/backend capacity before authorizing bulk execution.
+9. **Deterministic verifier**: `src/pramana/rules/`, `tests/test_rules.py`. Develop on frozen development evidence and evaluate separately on holdout. No production enforcement in this phase.
 
 A minimal CLI can expose import, collect, label, judge, resume, and report operations, but exact command syntax is deferred. Packaging, dependencies, and CI configuration will be proposed during implementation, not silently selected by this document.
 
@@ -48,6 +49,7 @@ A minimal CLI can expose import, collect, label, judge, resume, and report opera
 
 - Fake HTTP/DNS fixtures: redirect loop, private-address redirect, DNS rebinding, oversized/compressed response, slow stream, Retry-After, malformed HTML, and cross-origin credentials.
 - Evidence snapshots: same input bytes/configuration yield identical extraction; multilingual names, IDNs, relative links, long pages, and multiple organizations retain auditable evidence.
+- Scheduling fixtures: collection barrier, different row order across roles, judge overlap, duplicate readiness events, role starvation, saturation, supplemental rounds, and crash recovery.
 - Agent contract fixtures: unsupported citations, invalid output, prompt injection text, missing labeler, unanimous incorrect labels overridden by the judge, and supplemental evidence rounds.
 - Resume fault injection: process exit around artifact/receipt writes, duplicate completion, stale leases, cache invalidation, failed attempts with incurred usage, and cancellation preserve accurate lineage and cost.
 - Cost fixtures: cached tokens included in input, reasoning included in output, partial/missing usage, shared collection, retries, parallel duration, and unknown orchestration costs.

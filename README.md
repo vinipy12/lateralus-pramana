@@ -2,7 +2,7 @@
 
 Evidence-based verification of company–website relationships.
 
-Pramana collects website evidence deterministically, obtains three independent agent labels, and asks a judge to adjudicate every case. The resulting reference dataset supports development of a deterministic production verifier. Agent review is bounded to experiments; it is not required for every production record.
+Pramana collects website evidence deterministically, obtains three independent agent labels, and asks a judge to adjudicate every case. The resulting reference dataset supports development of a deterministic production verifier. The full pipeline targets 4M+ rows through asynchronous collection, three concurrent labeler streams, and per-row adjudication. A deterministic-only verifier is a separate production option.
 
 ## Status
 
@@ -17,6 +17,7 @@ Specification draft, 2026-09-19. No collector, agent integration, production ver
 5. [Experiment and evaluation](docs/specs/05-evaluation.md)
 6. [Architecture and implementation plan](docs/specs/06-delivery.md)
 7. [Local storage, caching, and idempotency](docs/specs/07-storage.md)
+8. [Asynchronous scheduling and scale](docs/specs/08-scheduling.md)
 
 [Domain glossary](CONTEXT.md) defines the canonical terms. Product requirements and proposed implementation defaults are distinguished in the specs.
 
