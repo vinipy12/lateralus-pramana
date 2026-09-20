@@ -8,9 +8,9 @@ A reachable domain can host a parking page, an unrelated business, or a legitima
 
 Pramana must produce an auditable case assessment and a measured experiment from which the owner can estimate production collection, deterministic verification, and optional agent-review costs. The initial deliverable is a local batch experiment and report, not a hosted product.
 
-## Direction approved in conversation
+## Product requirements
 
-- Standalone `lateralus-pramana` project under `~/Lateralus`, with provider-neutral inputs.
+- Accept company identities through a provider-agnostic input contract, without dependencies on any consumer application or data provider.
 - Deterministic collection of website content, redirects, and useful identity evidence.
 - Three independent labeler agents and a separate judge agent.
 - The judge reviews every case, including unanimous labels.
@@ -18,13 +18,19 @@ Pramana must produce an auditable case assessment and a measured experiment from
 - Use a small agent-assisted benchmark to develop a deterministic production verifier; no requirement to send millions of records to models.
 - Minimize owner labeling work. Preserve unresolved cases rather than forcing decisions.
 
-The original proposed spelling, `pramana`, is used consistently. The later conversational spelling `pranama` is treated as a typo, not a separate project.
+## Consumer data isolation
+
+Consumer data remains under the control of the consuming system. Pramana processes explicitly supplied inputs without importing consumer application code or bundling source datasets. Provider-specific adapters map external records into the common contract and must not change core verdict semantics.
+
+Source records, credentials, website captures, evidence bundles, agent payloads and outputs, and experiment artifacts must be stored outside the repository in consumer-controlled storage. Repository examples and test fixtures must be synthetic. Documentation, logs committed to Git, issues, and pull requests must not contain consumer data or identifying source references. Aggregate reports may be published only after review for disclosure risk.
+
+Any agent execution must use only the fields required for the case and a processing environment authorized by the consumer. Agent availability does not authorize disclosure of consumer data.
 
 ## Proposed pilot defaults
 
 100 company–domain pairs: 50 sampled source associations, 25 synthetic mismatches, and 25 targeted difficult cases. This allocation is a proposal, not an accuracy guarantee or representative production distribution. The source adapter and authorized source export remain to be selected.
 
-Source associations are provisional positives. Neither ZoomInfo provenance nor agreement among agents makes a label verified truth. Matching an input domain against itself is not identity evidence.
+Source associations are provisional positives. Neither source provenance nor agreement among agents makes a label verified truth. Matching an input domain against itself is not identity evidence.
 
 ## Happy path
 
@@ -54,7 +60,7 @@ Success means every accepted case has an accounted-for terminal state, and every
 
 CLI and Markdown/JSON reports are the proposed v1 interface. A mobile/desktop UI is out of scope.
 
-## Embarrassing failures to prevent
+## Critical failure modes
 
 - Calling a parked HTTP-200 page a verified company match merely because it is reachable.
 - Treating a legitimate parent redirect as a mismatch without relationship evidence.
@@ -66,4 +72,4 @@ CLI and Markdown/JSON reports are the proposed v1 interface. A mobile/desktop UI
 
 ## Out of scope
 
-Production mutation, deletion, quarantine, automatic merge of company records, bulk four-million-domain collection, paid model configuration, headless browser rendering, authentication to websites, CAPTCHA bypass, hosted UI, and execution-ready agent prompts are not part of this spec-writing delivery.
+Production mutation, deletion, quarantine, automatic merge of company records, large-scale production collection, paid model configuration, headless browser rendering, authentication to websites, CAPTCHA bypass, hosted UI, and execution-ready agent prompts are outside the initial implementation scope.

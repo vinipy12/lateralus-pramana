@@ -17,10 +17,12 @@ Specification draft, 2026-09-19. No collector, agent integration, production ver
 5. [Experiment and evaluation](docs/specs/05-evaluation.md)
 6. [Architecture and implementation plan](docs/specs/06-delivery.md)
 
-[Domain glossary](CONTEXT.md) defines the canonical terms. User-approved direction and proposed implementation defaults are distinguished in the specs.
+[Domain glossary](CONTEXT.md) defines the canonical terms. Product requirements and proposed implementation defaults are distinguished in the specs.
 
 ## Independence and data boundaries
 
-This is a standalone Lateralus project. Company inputs are provider-neutral; ZoomInfo and AlphaSearch are potential external sources, not runtime dependencies. Do not import application code, credentials, or source datasets into this repository. Synthetic fixtures may be committed; experiment data and captured websites belong in an external artifact directory.
+Pramana is provider-agnostic. Consumers supply company identities through a common input contract; provider-specific integrations remain outside the core.
+
+The repository contains reusable software, specifications, and synthetic fixtures only. Consumer records, credentials, captured website content, evidence bundles, agent inputs and outputs, and experiment artifacts must remain in consumer-controlled storage outside the repository. They must not appear in documentation, fixtures, logs committed to Git, issues, or pull requests. Examples must be synthetic; anonymizing a consumer record does not make it an approved fixture.
 
 No open-source license is granted by this scaffold. Ownership and distribution terms are for the owner to establish; repository location alone does not establish rights over third-party data or previously authored code.

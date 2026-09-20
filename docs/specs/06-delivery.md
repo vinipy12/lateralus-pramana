@@ -1,14 +1,14 @@
 # Architecture and implementation plan
 
-Status: proposed implementation sequence. The current delivery contains documentation and local repository initialization only.
+Status: proposed implementation sequence. Implementation has not started.
 
-## Discovery and boundaries
+## System boundaries
 
-The design originated from a domain-liveness workflow that checks DNS, HTTP status, and offsite redirects. Identity verification and content evidence are new responsibilities. This project will not copy AlphaSearch application code or depend on its live probe services. No source-data adapter has been inspected or selected for Pramana, and no source datasets are included.
+Pramana verifies company–website relationships independently of consumer applications and data providers. Integrations map authorized external records into the provider-agnostic input contract. The core does not depend on a consumer database, application codebase, or existing liveness service.
 
-The repository is independent under `/home/vinipy/Lateralus/lateralus-pramana`. Initial branch: `main`, local only. No remote repository, push, deployment, or production execution is implied. No existing project files are to be overwritten.
+The repository contains reusable source code, specifications, and synthetic fixtures. All consumer records and derived runtime artifacts reside in consumer-controlled storage outside the checkout. No implementation step may introduce consumer data into repository history or development collaboration tools.
 
-Risk for this delivery: Green, documentation and scaffold only. Future execution involving model routing, costs, judge semantics, dataset truth, or production consequences needs explicit review of the relevant control. These specs propose contracts; they do not turn agent labels into approved release truth.
+Model routing, data disclosure, cost budgets, adjudication policy, and production enforcement require explicit configuration before execution. Agent-derived reference labels remain provisional and do not establish production release criteria.
 
 ## Proposed module seams
 
@@ -39,7 +39,7 @@ Proposed local storage: a private artifact directory for content-addressed blobs
 4. **Runtime capability spike**: `src/pramana/agents/`, `docs/runtime-capabilities.md`. Demonstrate fresh contexts, receipts, model identity/usage availability, capacity, cancellation, and operator-assisted limitations using synthetic evidence. Do not assume tools can be invoked unattended from a standalone script.
 5. **Three labelers and judge**: `src/pramana/orchestration/`, `src/pramana/validation/`, versioned prompt assets and their tests. Review execution-ready prompts for the selected runtime before any labeling run.
 6. **Sampling and reporting**: `src/pramana/evaluation/`, `src/pramana/reporting/`, `tests/test_reporting.py`. Add provider-neutral import, grouped splits, metric reconciliation, and pricing assumptions.
-7. **Pilot**: run a small synthetic smoke experiment, then the authorized 100-case sample. Store outputs outside the repository; include only aggregate, non-sensitive findings in versioned docs.
+7. **Pilot**: run a small synthetic smoke experiment, then the authorized 100-case sample. Store outputs outside the repository; publish aggregate findings in versioned documentation only after disclosure review.
 8. **Deterministic verifier**: `src/pramana/rules/`, `tests/test_rules.py`. Develop on frozen development evidence and evaluate separately on holdout. No production enforcement in this phase.
 
 A minimal CLI can expose import, collect, label, judge, resume, and report operations, but exact command syntax is deferred. Packaging, dependencies, and CI configuration will be proposed during implementation, not silently selected by this document.
@@ -78,6 +78,6 @@ Network tests and model-assisted smoke runs are separate from deterministic offl
 - **The pilot is mostly easy sites.** Report strata and cost scenarios; do not extrapolate representative accuracy or throughput.
 - **A labeler crashes after spending tokens.** Retain/reconcile attempt usage; case remains incomplete until three valid labels and adjudication exist.
 
-## Review outcome for this spec delivery
+## Implementation readiness
 
-Scope matches the requested collection, three-labeler, judge, and measurement experiment. The deliverable is ready for design review, not a claim of implementation or a production release recommendation. Runtime capabilities and actual source fields are the main unresolved feasibility inputs. Numeric production accuracy thresholds and paid-provider configuration remain intentionally unset.
+The specifications define the collection, three-labeler, judge, and measurement experiment. Implementation readiness depends on validating the runtime adapter and consumer data boundary. Runtime capabilities and actual source fields are the main unresolved feasibility inputs. Numeric production accuracy thresholds and paid-provider configuration remain intentionally unset.

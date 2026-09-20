@@ -6,7 +6,7 @@ Status: proposed pilot design. No labels, thresholds, or production release gate
 
 Start with 100 cases: 50 randomly selected eligible source associations, 25 generated mismatches, and 25 targeted difficult cases. Store sample seed, source snapshot/version, eligibility and exclusion rules, selection probabilities where known, and stratum. Do not replace failures invisibly to make the dataset look clean.
 
-Use a source export that the owner is authorized to use. Source associations are provisional positives, not verified labels. Synthetic mismatches are constructed by documented seeded permutations, screening for identical companies, shared domains, known corporate relationships, and obvious alias overlap. Remaining ambiguity is allowed and assessed; intended negative labels are not enforced on agents.
+Use a source export that the consumer is authorized to process in the selected execution environment. Keep the export, sample manifests, source references, and derived labels in consumer-controlled storage outside the repository; commit only synthetic fixtures. Source associations are provisional positives, not verified labels. Synthetic mismatches are constructed by documented seeded permutations, screening for identical companies, shared domains, known corporate relationships, and obvious alias overlap. Remaining ambiguity is allowed and assessed; intended negative labels are not enforced on agents.
 
 Difficult cases cover sparse sites, same-name organizations, parking, cross-domain redirects, subsidiaries, rebrands, multilingual sites, and blocked/JavaScript-only pages. Label generation uses website evidence, not sample membership. Report synthetic and naturally occurring cases separately.
 
