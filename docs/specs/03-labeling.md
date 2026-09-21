@@ -10,11 +10,17 @@ Initial collection covers every domain in the frozen dataset before labeling sta
 
 Agents receive evidence as untrusted data and have no direct network, repository mutation, credentials, or production tools. New collection is a structured request to the orchestrator. A hostile page instructing an agent to change its verdict or reveal secrets must be ignored.
 
+## Pilot model configuration
+
+The configurable pilot default assigns Luna (`gpt-5.6-luna`) to `labeler_1`, Terra (`gpt-5.6-terra`) to `labeler_2`, and Sol (`gpt-5.6-sol`) to `labeler_3`. Sol also serves as the provisional judge. This lineup is a model-diversity experiment, not an established accuracy improvement or a validated choice of best judge.
+
+Record the configured role-to-model mapping and actual model identity and settings where observable. Surface unavailable models or unobservable identities during preflight; do not silently substitute models. Report alternative lineups as separate configurations.
+
 ## Independence and blindness
 
 All labelers receive the same rubric, company snapshot, bundle version, and field-provenance limitations. They do not see other labels, judge outputs, expected reference labels, source-brand prestige, synthetic-case flags, or deterministic verifier predictions. They cannot communicate with one another. Preserve provenance internally while exposing only the reliability limitations necessary to interpret identity fields.
 
-Fresh context per case and role is the v1 default. Reusing an agent context across cases risks contamination and complicates per-case token accounting; batching may be introduced only as a separately measured configuration. Three runs of one model are independent executions, not independent underlying knowledge or calibrated votes.
+Fresh context per case and role is the v1 default. Reusing an agent context across cases risks contamination and complicates per-case token accounting; batching may be introduced only as a separately measured configuration. Different models may reduce shared errors but do not establish statistical independence: they can share blind spots, and all labelers receive the same potentially incomplete evidence and rubric. Independent executions are not calibrated votes.
 
 ## Verdict rubric
 
@@ -45,7 +51,7 @@ Validate schema, enum values, referenced bundle IDs, and excerpt existence befor
 
 ## Adjudication
 
-Randomize/anonymize label presentation order using a recorded seed, hiding model/role identities where practical. The judge receives the original evidence and all three valid labels, but not the deterministic verifier's output or reference label.
+Randomize/anonymize label presentation order using a recorded seed, hiding model/role identities. Preserve the mapping internally for evaluation. The judge receives the original evidence and all three valid labels, but not the deterministic verifier's output or reference label. Each adjudication uses a fresh context separate from every labeler, including the Sol labeler. Context separation and anonymization do not eliminate shared model tendencies.
 
 The judge checks citations and conflicting identity signals even for 3/3 agreement. It can agree, override any/all labelers, return uncertain, or request bounded additional collection. No majority vote automatically determines the result.
 

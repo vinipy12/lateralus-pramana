@@ -18,7 +18,9 @@ Freeze case manifests, bundles, company snapshots, rubric, relationship policy, 
 
 ## Evidence and label validation
 
-Automate schema and citation checks. Record 3/3 versus 2/1 versus three-way disagreement, unanimous judge overrides, unsupported-citation flags, collection failures, and source/agent disagreement. Three agents using the same model can share systematic errors; consensus is a workflow signal, not an accuracy estimate.
+Automate schema and citation checks. Record 3/3 versus 2/1 versus three-way disagreement, unanimous judge overrides, unsupported-citation flags, collection failures, and source/agent disagreement. Use the configurable Luna/Terra/Sol labeler lineup and provisional Sol judge defined in [labeling](03-labeling.md). Different models may reduce shared errors but do not establish statistical independence. Consensus remains a workflow signal, not an accuracy estimate.
+
+Report pairwise verdict agreement for each labeler pair, with raw counts and denominators of valid same-round comparisons. For adjudicated rows with labeler disagreement, report how often the judge's verdict matches each labeler, with the number of eligible rows as denominator. Matches can include multiple labelers or none; they do not establish which rationale the judge followed. Separate results by model configuration and evidence round. Frequent agreement between the Sol judge and Sol labeler is a diagnostic to investigate, not evidence that Sol is more accurate.
 
 Owner review is optional and targeted to unresolved relationship policy or high-impact failure patterns. Agent-adjudicated cases remain explicitly provisional without independent human verification. Do not publish numeric claims about real-world correctness based solely on this reference dataset.
 
