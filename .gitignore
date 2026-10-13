@@ -1,0 +1,22 @@
+# Local credentials and private experiment artifacts
+/.local/
+.env
+.env.*
+!.env.example
+/data/
+/artifacts/
+/runs/
+/private/
+*.pem
+*.key
+# Future local development output
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.DS_Store
+build/
+dist/
+*.egg-info/
